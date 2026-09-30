@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz: Manejo Reprodutivo em Suínos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pig: {
+              50: '#fff5f7',
+              100: '#ffe3eb',
+              200: '#fbcfe8',
+              300: '#f4a8c4',
+              400: '#f07da8',
+              500: '#e84f88',
+              600: '#d12968',
+              700: '#b01950',
+              800: '#921845',
+              900: '#7a183d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #fff0f5;
+    }
+    h1, h2, h3, .font-heading {
+      font-family: 'Fredoka', cursive;
+    }
+    .pig-pattern {
+      background-image: radial-gradient(#f4a8c4 1px, transparent 1px), radial-gradient(#f4a8c4 1px, #fff0f5 1px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      background-opacity: 0.3;
+    }
+  </style>
+</head>
+<body class="pig-pattern min-h-screen text-slate-800 flex flex-col justify-between py-6 px-4">
+
+  <!-- Header -->
+  <header class="max-w-3xl mx-auto w-full text-center mb-6">
+    <div class="inline-flex items-center justify-center p-3 bg-white rounded-full shadow-md mb-3 border-2 border-pig-200">
+      <span class="text-3xl mr-2">🐖</span>
+      <h1 class="text-2xl md:text-3xl font-bold text-pig-700">Manejo Reprodutivo Suínos</h1>
+    </div>
+    <p class="text-pig-800 font-semibold text-sm md:text-base">Teste interativo de conhecimentos específicos</p>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-3xl mx-auto w-full bg-white rounded-3xl shadow-xl border-4 border-pig-200 overflow-hidden mb-6 transition-all duration-300">
+    
+    <!-- Progress Bar -->
+    <div class="w-full bg-pig-100 h-4 relative">
+      <div id="progress-bar" class="bg-pig-400 h-4 transition-all duration-300 rounded-r-full" style="width: 11%;"></div>
+    </div>
+
+    <!-- Question Box -->
+    <div class="p-6 md:p-8">
+      
+      <div class="flex justify-between items-center mb-4">
+        <span id="question-number" class="bg-pig-100 text-pig-700 font-bold px-4 py-1.5 rounded-full text-sm border border-pig-300">
+          Questão 1 de 9
+        </span>
+        <span id="question-type" class="text-xs font-semibold text-pig-500 uppercase tracking-wider bg-pig-50 px-3 py-1 rounded-md border border-pig-200">
+          Múltipla Escolha
+        </span>
+      </div>
+
+      <!-- Enunciado -->
+      <div class="mb-6">
+        <h2 id="question-text" class="text-lg md:text-xl font-bold text-slate-800 leading-relaxed">
+          Carregando questão...
+        </h2>
+      </div>
+
+      <!-- Multiple Choice Options -->
+      <div id="options-container" class="space-y-3 mb-6">
+        <!-- Injetado dinamicamente -->
+      </div>
+
+      <!-- Text Input / Open Question Container -->
+      <div id="text-input-container" class="space-y-4 mb-6 hidden">
+        <label class="block text-sm font-semibold text-slate-600">Sua resposta ou palavra-chave:</label>
+        <textarea id="open-answer-input" rows="3" class="w-full p-3.5 border-2 border-pig-200 rounded-xl focus:outline-none focus:border-pig-400 text-slate-800" placeholder="Digite sua resposta aqui..."></textarea>
+        <button id="submit-open-btn" onclick="checkOpenAnswer()" class="w-full py-3 bg-pig-500 hover:bg-pig-600 text-white font-bold rounded-xl shadow-md transition-all">
+          Verificar e Mostrar Gabarito / Explicação
+        </button>
+      </div>
+
+      <!-- Feedback & Explanations Section -->
+      <div id="feedback-container" class="hidden mt-6 p-5 rounded-2xl bg-pig-50 border-2 border-pig-200 space-y-4">
+        <div class="flex items-center space-x-2 border-b border-pig-200 pb-3">
+          <span class="text-2xl" id="feedback-icon">💡</span>
+          <h3 class="font-heading text-lg font-bold text-pig-800">Justificativa e Explicação</h3>
+        </div>
+
+        <div id="feedback-details" class="space-y-3 text-sm md:text-base text-slate-700">
+          <!-- Detalhes injetados dinamicamente -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Footer -->
+    <div class="bg-pig-50 px-6 py-4 border-t border-pig-100 flex justify-between items-center">
+      <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2.5 bg-white text-pig-600 border border-pig-300 font-bold rounded-xl shadow-sm hover:bg-pig-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+        <i class="fa-solid fa-arrow-left mr-2"></i> Anterior
+      </button>
+
+      <button id="next-btn" onclick="nextQuestion()" class="px-5 py-2.5 bg-pig-500 text-white font-bold rounded-xl shadow-md hover:bg-pig-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+        Próxima <i class="fa-solid fa-arrow-right ml-2"></i>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Summary Modal / Finish State -->
+  <div id="finish-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 text-center border-4 border-pig-200 shadow-2xl">
+      <div class="text-5xl mb-3">🐽</div>
+      <h2 class="text-2xl font-bold text-pig-800 font-heading mb-2">Quiz Concluído!</h2>
+      <p class="text-slate-600 mb-6">Você revisou todas as 9 questões de manejo reprodutivo em suínos.</p>
+      
+      <button onclick="restartQuiz()" class="w-full py-3 bg-pig-500 hover:bg-pig-600 text-white font-bold rounded-xl shadow-md transition-all">
+        Refazer Quiz
+      </button>
+    </div>
+  </div>
+
+  <footer class="text-center text-xs text-pig-800 opacity-80">
+    Manejo Reprodutivo Suínos &bull; Material Didático
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        number: 1,
+        type: "multiple",
+        question: "1. Em uma Central de Difusão Genética (CDG) suína, o galpão de alojamento dos cachaços deve possuir ambiente climatizado sob pressão negativa. Para garantir o conforto térmico adequado dos reprodutores e preservar a qualidade do ejaculado, qual é a faixa de temperatura considerada ideal?",
+        options: [
+          { letter: "a", text: "20°C a 22°C" },
+          { letter: "b", text: "10°C a 14°C" },
+          { letter: "c", text: "28°C a 32°C" },
+          { letter: "d", text: "35°C a 38°C" }
+        ],
+        correct: "a",
+        justifications: {
+          "a": "Resposta correta. A faixa de 20°C a 22°C representa a zona de conforto térmico ideal que evita estresse calórico e alterações na espermatogênese dos reprodutores.",
+          "b": "Errada. Esta faixa de temperatura é demasiadamente fria para os machos reprodutores, podendo causar estresse por frio e desconforto metabólico.",
+          "c": "Errada. Temperaturas elevadas acima de 27°C provocam estresse térmico, o que reduz drasticamente a qualidade e a motilidade do ejaculado.",
+          "d": "Errada. Temperaturas tão elevadas aproximam-se da temperatura corporal interna, induzindo degeneração testicular e queda severa na produção de espermatozoides."
+        }
+      },
+      {
+        number: 2,
+        type: "multiple",
+        question: "2. O ejaculado do cachaço é ejetado em frações bem definidas durante a coleta. Quais das afirmativas a seguir não descrevem corretamente as características dessas frações?",
+        options: [
+          { letter: "a", text: "A fração pré-espermática é composta principalmente pelas secreções uretrais das glândulas bulbouretrais e da próstata." },
+          { letter: "b", text: "A fração rica (ou espermática) concentra a maior parte dos espermatozoides do ejaculado." },
+          { letter: "c", text: "A fração pós-espermática (pobre) apresenta volume expressivo, porém baixa concentração espermática." },
+          { letter: "d", text: "A fração gelatinosa é eliminada primeiro para lubrificar o canal vaginal antes do sêmen fluir." }
+        ],
+        correct: "d",
+        justifications: {
+          "a": "Certa. Esta fração inicial limpa a uretra de resíduos metabólicos e urina antes da passagem dos espermatozoides.",
+          "b": "Certa. É a porção do ejaculado com alta densidade celular, ideal para o aproveitamento no processamento de doses inseminantes.",
+          "c": "Certa. Esta fase final é essencialmente constituída por fluidos vesiculares com escassa presença celular.",
+          "d": "Errada. A fração gelatinosa surge ao final da coleta e atua na formação do tampão cervical, e não no início da ejaculação."
+        }
+      },
+      {
+        number: 3,
+        type: "open",
+        question: "3. No processamento laboratorial de sêmen suíno, após a reconstituição do diluente em água purificada por osmose reversa, o diluente deve estar aquecido a exatamente °C no momento de sua adição ao ejaculado para evitar o choque térmico das células espermáticas.",
+        correctAnswerText: "35",
+        justifications: {
+          general: "A temperatura de 35°C equivale à temperatura fisiológica do ejaculado recém-coletado, impedindo variações bruscas de temperatura que danificam as membranas celulares."
+        }
+      },
+      {
+        number: 4,
+        type: "multiple",
+        question: "4. Na inseminação artificial (IA) convencional de suínos, a definição do momento de aplicação do sêmen depende do tipo de matriz (marra ou porca). Qual é o protocolo recomendado quanto ao momento da primeira inseminação após a detecção do cio?",
+        options: [
+          { letter: "a", text: "Porcas devem ser inseminadas imediatamente após a detecção do cio, enquanto marrãs devem aguardar 12 horas." },
+          { letter: "b", text: "Marrãs devem ser inseminadas imediatamente após a detecção do cio, enquanto porcas devem ser inseminadas 12 horas após a detecção." },
+          { letter: "c", text: "Tanto marrãs quanto porcas devem receber a primeira inseminação exatamente 24 horas após o diagnóstico do cio." },
+          { letter: "d", text: "Ambas as categorias devem ser inseminadas imediatamente no momento da detecção e receber apenas uma única dose." }
+        ],
+        correct: "b",
+        justifications: {
+          "a": "Errada. Inverter a ordem pode levar à perda da janela ideal de fertilização, visto que marrãs possuem período de cio mais curto.",
+          "b": "Correta. Marrãs apresentam duração de cio mais curta e ovulação mais rápida após a aceitação do cachaço, requerendo inseminação imediata, ao passo que porcas ovulam mais tardiamente.",
+          "c": "Errada. Aguardar 24 horas na primeira IA em marrãs pode resultar em inseminação tardia, reduzindo a taxa de prenhez e tamanho da patada.",
+          "d": "Errada. O protocolo padrão recomenda um esquema de múltiplas inseminações (geralmente três) adaptado ao tempo de estro de cada categoria."
+        }
+      },
+      {
+        number: 5,
+        type: "open",
+        question: "5. A coordenação neuroendócrina da atividade reprodutiva no cachaço inicia-se no sistema nervoso central, no qual o hipotálamo secretor de estimula a hipófise anterior a liberar as gonadrotrofinas FSH e LH.",
+        correctAnswerText: "GnRH",
+        justifications: {
+          general: "O GnRH (hormônio liberador de gonadotrofinas) é o sinalizador hipotalâmico central que regula o eixo hipófise-testículo na reprodução masculina."
+        }
+      },
+      {
+        number: 6,
+        type: "open",
+        question: "6. Durante o procedimento de inseminação artificial em porcas, por que o operador deve manter uma leve pressão no dorso da fêmea? Quais outros manejos são importantes nesse momento?",
+        correctAnswerText: "Manter o estímulo para receber o sêmen. Ambiente calmo e presença do macho.",
+        justifications: {
+          general: "A pressão contínua no dorso da fêmea serve para manter o estímulo de receptividade.\nOutros manejos importantes: presença do macho/cachaço, ambiente limpo e calmo, conduzir a fêmea de forma calma e sem movimentos bruscos."
+        }
+      },
+      {
+        number: 7,
+        type: "multiple",
+        question: "7. Na produção de diluente de sêmen em laboratório de CDG, a água é submetida a processos de osmose reversa e lâmpadas ultravioleta (UV). Qual é o papel específico desse sistema no tratamento da água?",
+        options: [
+          { letter: "a", text: "Aumentar a concentração de íons de cálcio e magnésio para nutrir os espermatozoides durante a conservação." },
+          { letter: "b", text: "Acidificar o pH da água para níveis abaixo de 4,0 com o objetivo de inibir a motilidade espermática." },
+          { letter: "c", text: "Substituir o uso de antibióticos e conservar o sêmen em temperatura ambiente por mais de 30 dias." },
+          { letter: "d", text: "Separar partículas e impurezas por alta pressão hidráulica nas membranas de osmose reversa e inativar bactérias através do filtro UV." }
+        ],
+        correct: "d",
+        justifications: {
+          "a": "Errada. A água para diluente deve ser pura e livre de sais minerais, pois íons em excesso alteram a osmolaridade e reduzem a viabilidade seminal.",
+          "b": "Errado. PHs altamente ácidos causam a morte imediata dos espermatozoides por lesão de membrana.",
+          "c": "Errado. A água purificada é um componente para preparo do diluente, mas não substitui a refrigeração (15-18°C) e nem estende a vida útil do sêmen por prazos indefinidos.",
+          "d": "Correta. A osmose reversa remove minerais e compostos orgânicos, enquanto a luz UV assegura a ação bactericida necessária para a durabilidade da dose seminal."
+        }
+      },
+      {
+        number: 8,
+        type: "open",
+        question: "8. Explique qual é a finalidade sanitária do procedimento de toalete prévia (esvaziamento do divertículo prepucial e limpeza) efetuado no cachaço antes da coleta do sêmen.",
+        correctAnswerText: "A higienização prepucial remove fontes potenciais de carga bacteriana contidas no divertículo (ou Redução da contaminação bacteriana / contaminação do ejaculado; ou Remoção de urina, secreções ou resíduos do divertículo prepucial).",
+        justifications: {
+          general: "A toalete prévia tem como finalidade reduzir a contaminação bacteriana do ejaculado e das doses inseminantes, ao eliminar urina, secreções acumuladas no divertículo prepucial do reprodutor antes que o mesmo monte no manequim de coleta, assim como é um momento que o macho pode defecar, não contaminando o ambiente de coleta."
+        }
+      },
+      {
+        number: 9,
+        type: "multiple",
+        question: "9. Na técnica de Inseminação Artificial em fêmeas suínas, utilizamos normalmente dois tipos de dose. As doses utilizadas na inseminação Intracervical (ou tradicional) e a Inseminação Pós-Cervical (Intrauterina). Qual o volume da dose e a concentração de espermatozoides em cada técnica (dose)?",
+        options: [
+          { letter: "a", text: "Intracervical: 80 a 90 ml e 3 a 3,2 bilhões de espermatozoide/dose. Pós-cervical: 50 a 60 ml e 1,5 a 2 bilhões de espermatozoides/dose." },
+          { letter: "b", text: "Intracervical: 90 a 100 ml e 3 a 3,2 bilhões de espermatozoide/dose. Pós-cervical: 50 a 60 ml e 2 a 2,5 bilhões de espermatozoides/dose." },
+          { letter: "c", text: "Intracervical: 80 a 90 ml e 3 a 3,5 bilhões de espermatozoide/dose. Pós-cervical: 50 a 60 ml e 1,5 a 2 bilhões de espermatozoides/dose." },
+          { letter: "d", text: "Intracervical: 80 a 90 ml e 3 a 3,2 bilhões de espermatozoide/dose. Pós-cervical: 50 a 60 ml e 1,5 a 2,5 bilhões de espermatozoides/dose." }
+        ],
+        correct: "a",
+        justifications: {
+          "a": "Correta.",
+          "b": "Errada.",
+          "c": "Errada.",
+          "d": "Errada."
+        }
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+
+    function initQuiz() {
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = quizData[currentQuestionIndex];
+      
+      // Update Progress
+      const progressPercent = ((currentQuestionIndex + 1) / quizData.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+      document.getElementById('question-number').innerText = `Questão ${q.number} de ${quizData.length}`;
+      document.getElementById('question-type').innerText = q.type === 'multiple' ? 'Múltipla Escolha' : 'Resposta Escrita';
+
+      // Update Text
+      document.getElementById('question-text').innerText = q.question;
+
+      // Hide Containers
+      const optionsContainer = document.getElementById('options-container');
+      const textInputContainer = document.getElementById('text-input-container');
+      const feedbackContainer = document.getElementById('feedback-container');
+
+      optionsContainer.innerHTML = '';
+      feedbackContainer.classList.add('hidden');
+
+      if (q.type === 'multiple') {
+        optionsContainer.classList.remove('hidden');
+        textInputContainer.classList.add('hidden');
+
+        q.options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = `w-full text-left p-4 rounded-xl border-2 transition-all flex items-start space-x-3 option-btn option-${opt.letter}`;
+          
+          const isSelected = userAnswers[currentQuestionIndex] === opt.letter;
+          const isAnswered = userAnswers[currentQuestionIndex] !== undefined;
+
+          if (isAnswered) {
+            if (opt.letter === q.correct) {
+              btn.classList.add('bg-emerald-50', 'border-emerald-400', 'text-emerald-900');
+            } else if (isSelected) {
+              btn.classList.add('bg-rose-50', 'border-rose-400', 'text-rose-900');
+            } else {
+              btn.classList.add('bg-gray-50', 'border-slate-200', 'text-slate-500', 'opacity-70');
+            }
+          } else {
+            btn.classList.add('bg-white', 'border-pig-200', 'hover:border-pig-400', 'hover:bg-pig-50', 'text-slate-800');
+          }
+
+          btn.onclick = () => selectOption(opt.letter);
+
+          btn.innerHTML = `
+            <span class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+              isAnswered && opt.letter === q.correct 
+                ? 'bg-emerald-500 text-white' 
+                : isAnswered && isSelected 
+                  ? 'bg-rose-500 text-white' 
+                  : 'bg-pig-200 text-pig-800'
+            }">
+              ${opt.letter.toUpperCase()}
+            </span>
+            <span class="pt-0.5 leading-snug">${opt.text}</span>
+          `;
+
+          optionsContainer.appendChild(btn);
+        });
+
+      } else {
+        optionsContainer.classList.add('hidden');
+        textInputContainer.classList.remove('hidden');
+        
+        const openInput = document.getElementById('open-answer-input');
+        openInput.value = userAnswers[currentQuestionIndex] || '';
+        
+        if (userAnswers[currentQuestionIndex] !== undefined) {
+          openInput.disabled = true;
+          document.getElementById('submit-open-btn').classList.add('hidden');
+        } else {
+          openInput.disabled = false;
+          document.getElementById('submit-open-btn').classList.remove('hidden');
+        }
+      }
+
+      // Show Feedback if already answered
+      if (userAnswers[currentQuestionIndex] !== undefined) {
+        showFeedback();
+      }
+
+      // Navigation Buttons
+      document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+      
+      const nextBtn = document.getElementById('next-btn');
+      if (currentQuestionIndex === quizData.length - 1) {
+        nextBtn.innerHTML = 'Finalizar <i class="fa-solid fa-check ml-2"></i>';
+      } else {
+        nextBtn.innerHTML = 'Próxima <i class="fa-solid fa-arrow-right ml-2"></i>';
+      }
+    }
+
+    function selectOption(letter) {
+      if (userAnswers[currentQuestionIndex] !== undefined) return;
+      userAnswers[currentQuestionIndex] = letter;
+      renderQuestion();
+    }
+
+    function checkOpenAnswer() {
+      const inputVal = document.getElementById('open-answer-input').value.trim();
+      if (!inputVal) return;
+      userAnswers[currentQuestionIndex] = inputVal;
+      renderQuestion();
+    }
+
+    function showFeedback() {
+      const q = quizData[currentQuestionIndex];
+      const feedbackContainer = document.getElementById('feedback-container');
+      const feedbackDetails = document.getElementById('feedback-details');
+      
+      feedbackDetails.innerHTML = '';
+      feedbackContainer.classList.remove('hidden');
+
+      if (q.type === 'multiple') {
+        q.options.forEach(opt => {
+          const div = document.createElement('div');
+          const isCorrect = opt.letter === q.correct;
+          const justification = q.justifications[opt.letter];
+
+          div.className = `p-3.5 rounded-xl border ${
+            isCorrect 
+              ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950' 
+              : 'bg-white border-pig-200 text-slate-700'
+          }`;
+
+          div.innerHTML = `
+            <div class="font-bold mb-1 flex items-center text-sm">
+              <span class="mr-1.5">${isCorrect ? '✅' : '❌'}</span>
+              <span>Alternativa (${opt.letter.toUpperCase()}):</span>
+            </div>
+            <p class="text-sm leading-relaxed">${justification}</p>
+          `;
+          feedbackDetails.appendChild(div);
+        });
+      } else {
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-white border border-pig-200 space-y-2';
+
+        div.innerHTML = `
+          <div class="font-bold text-pig-800 text-sm">Gabarito / Resposta do Documento:</div>
+          <div class="p-2.5 bg-pig-50 rounded-lg text-sm border border-pig-200 font-semibold text-pig-900">
+            ${q.correctAnswerText}
+          </div>
+          <div class="font-bold text-pig-800 text-sm mt-3">Justificativa:</div>
+          <p class="text-sm leading-relaxed text-slate-700 whitespace-pre-line">${q.justifications.general}</p>
+        `;
+        feedbackDetails.appendChild(div);
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < quizData.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      } else {
+        document.getElementById('finish-modal').classList.remove('hidden');
+      }
+    }
+
+    function restartQuiz() {
+      userAnswers = {};
+      currentQuestionIndex = 0;
+      document.getElementById('finish-modal').classList.add('hidden');
+      renderQuestion();
+    }
+
+    window.onload = initQuiz;
+  </script>
+</body>
+</html>
+```eof
+
+I generated the interactive quiz application with the pig/piglet theme in pastel pink tones. All 9 questions, options, and justifications were preserved word-for-word from your document, and the explanation for each alternative is displayed as soon as a question is answered.
